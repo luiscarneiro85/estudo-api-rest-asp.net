@@ -13,7 +13,6 @@ namespace ApiTest.Controllers
     //TODO
     //Metodo para abrir conexao
     //Metodo para fechar conexao
-    //Inserir player POST
     //Classe PlayerService
 
 
@@ -123,10 +122,42 @@ namespace ApiTest.Controllers
             return _result;
         }
 
+        /// <summary>
+        /// Insert a new player
+        /// </summary>
+        /// <param name="player"></param>
         [HttpPost]
-        public void InsertPlayer([FromBody] Player player)
+        public void Post([FromBody] Player player)
         {
+            if (player == null) return;
 
+            using (MySqlConnection connection = new MySqlConnection(connectionString))
+            {
+                using (MySqlCommand command = new MySqlCommand())
+                {
+                    command.Connection = connection;
+                    command.CommandText = "INSERT INTO player(name, email, psn) " +
+                        "values(@NAME, @EMAIL, @PSN);";
+
+                    command.Parameters.AddWithValue("NAME", player.Name);
+                    command.Parameters.AddWithValue("EMAIL", player.Email);
+                    command.Parameters.AddWithValue("PSN", player.Psn);
+
+                    try
+                    {
+                        connection.Open();
+
+                        command.ExecuteNonQuery();
+                    }
+                    catch (Exception)
+                    {
+
+                        throw;
+                    }
+                }
+
+                connection.Close();
+            }
         }
     }
 }
